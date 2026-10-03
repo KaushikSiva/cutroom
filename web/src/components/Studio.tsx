@@ -105,10 +105,13 @@ export default function Studio({ id }: { id: string }) {
 
   if (missing)
     return (
-      <div className="grid min-h-screen place-items-center">
+      <div className="grid min-h-screen place-items-center px-4">
         <div className="text-center">
-          <div className="font-display text-5xl">Reel not found</div>
-          <Link href="/" className="mt-4 inline-block text-amber underline">Back to the studio</Link>
+          <div className="display text-5xl">Reel not found</div>
+          <p className="mt-3 text-graphite">This film doesn&apos;t exist, or it was never made public.</p>
+          <Link href="/" className="mt-6 inline-block rounded-full bg-ink px-5 py-2.5 text-[15px] font-medium text-paper">
+            Back to the studio
+          </Link>
         </div>
       </div>
     );
@@ -120,50 +123,50 @@ export default function Studio({ id }: { id: string }) {
 
   return (
     <main className="relative min-h-screen pb-24">
-      <header className="sticky top-0 z-40 border-b border-white/5 bg-bg/80 backdrop-blur-md">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
-          <Link href="/" className="font-display text-2xl">Cutroom</Link>
-          <div className="flex items-center gap-3 font-mono text-[11px]">
+      <header className="sticky top-0 z-40 border-b border-hairline/70 bg-paper/85 backdrop-blur-md">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
+          <Link href="/" className="flex items-center gap-2">
+            <span className="grid h-6 w-6 place-items-center rounded-full border-[1.5px] border-ink">
+              <span className={`h-2 w-2 rounded-full bg-rec ${done || failed ? "" : "rec-dot"}`} />
+            </span>
+            <span className="display text-[22px] tracking-[-0.04em]">Cutroom</span>
+          </Link>
+          <div className="flex items-center gap-3 text-[13px]">
             {!done && !failed && (
-              <span className="flex items-center gap-1.5 text-rec">
-                <span className="h-2 w-2 rounded-full bg-rec rec-dot" /> LIVE
+              <span className="flex items-center gap-1.5 rounded-full bg-rec/10 px-2.5 py-1 font-medium text-rec">
+                <span className="h-1.5 w-1.5 rounded-full bg-rec rec-dot" /> Live
               </span>
             )}
-            {done && <span className="text-green">● WRAPPED</span>}
-            {failed && <span className="text-rec">● FAILED</span>}
-            <span className="text-muted">{p ? `${p.aspect_ratio} · ${timecode(p.length_s || 0)}` : "…"}</span>
+            {done && <span className="rounded-full bg-trk-a/12 px-2.5 py-1 font-medium text-trk-a">Wrapped</span>}
+            {failed && <span className="rounded-full bg-rec/10 px-2.5 py-1 font-medium text-rec">Failed</span>}
+            <span className="hidden font-mono text-[12px] text-graphite sm:inline">{p ? `${p.aspect_ratio} · ${timecode(p.length_s || 0)}` : "…"}</span>
           </div>
         </div>
         <ProgressBar progress={p?.progress || 0} failed={failed} />
       </header>
 
-      <div className="mx-auto max-w-7xl px-4 sm:px-6">
-        {/* title block */}
-        <section className="pt-10">
-          <div className="font-mono text-[11px] uppercase tracking-[0.25em] text-muted">Production · {id.slice(0, 8)}</div>
-          <motion.h1 key={title} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-2 font-display text-4xl leading-tight sm:text-6xl">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+        <section className="pt-12">
+          <div className="font-mono text-[12px] text-graphite">Production {id.slice(0, 8)}</div>
+          <motion.h1 key={title} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="display mt-3 max-w-4xl text-4xl sm:text-6xl">
             {title}
           </motion.h1>
-          {(p?.logline || p?.script?.logline) && <p className="mt-2 max-w-3xl text-muted">{p?.logline || p?.script?.logline}</p>}
-          {!p?.logline && !p?.script?.logline && p?.brief && <p className="mt-2 max-w-3xl text-muted">“{p.brief}”</p>}
-          {p?.style && <p className="mt-1 font-mono text-xs text-muted/80">style: {p.style}</p>}
+          {(p?.logline || p?.script?.logline) && <p className="accent mt-4 max-w-3xl text-xl text-graphite sm:text-2xl">{p?.logline || p?.script?.logline}</p>}
+          {!p?.logline && !p?.script?.logline && p?.brief && <p className="accent mt-4 max-w-3xl text-xl text-graphite sm:text-2xl">“{p.brief}”</p>}
+          {p?.style && <p className="mt-3 text-[13px] text-graphite">Style: {p.style}</p>}
         </section>
 
         <StageRail stage={p?.stage || "brief"} progress={p?.progress || 0} done={done} />
 
-        {failed && p?.error && (
-          <div className="mt-6 rounded-xl border border-rec/40 bg-rec/10 p-4 font-mono text-sm text-rec">{p.error}</div>
-        )}
+        {failed && p?.error && <div className="mt-6 rounded-2xl border border-rec/30 bg-rec/5 p-4 font-mono text-[13px] text-rec">{p.error}</div>}
 
         <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_380px]">
-          {/* left: screen */}
-          <div className="space-y-6">
+          <div className="min-w-0 space-y-10">
             <Screen project={p} view={view} />
             <Storyboard view={view} />
             {view.clips.length > 0 && <FootageBin clips={view.clips} />}
           </div>
-          {/* right: director + panels */}
-          <div className="space-y-6">
+          <div className="min-w-0 space-y-5">
             <DirectorFeed events={events} />
             {view.critiques.length > 0 && <CritiquePanel critiques={view.critiques} />}
             <AudioPanel view={view} />
@@ -256,14 +259,16 @@ function derive(p: Project | null, events: Ev[]) {
 type View = ReturnType<typeof derive>;
 
 /* ---------------------------------------------------------------- pieces */
+const panel = "card-shadow rounded-[20px] border border-hairline bg-card p-5";
+const panelTitle = "mb-3 text-[13px] font-medium text-graphite";
+
 function ProgressBar({ progress, failed }: { progress: number; failed: boolean }) {
   return (
-    <div className="h-[2px] w-full bg-line">
+    <div className="h-[2px] w-full bg-hairline">
       <motion.div
-        className={`h-full ${failed ? "bg-rec" : "bg-gradient-to-r from-amber-2 via-amber to-cyan"}`}
+        className={`h-full ${failed ? "bg-rec" : "bg-ink"}`}
         animate={{ width: `${Math.max(2, Math.min(100, progress))}%` }}
         transition={{ type: "spring", stiffness: 60, damping: 20 }}
-        style={{ boxShadow: "0 0 12px rgba(255,181,71,.7)" }}
       />
     </div>
   );
@@ -272,34 +277,35 @@ function ProgressBar({ progress, failed }: { progress: number; failed: boolean }
 function StageRail({ stage, progress, done }: { stage: string; progress: number; done: boolean }) {
   const idx = Math.max(0, STAGES.findIndex(([k]) => k === stage));
   return (
-    <div className="no-scrollbar mt-8 overflow-x-auto">
-      <div className="relative flex min-w-[880px] items-center justify-between px-1">
-        <div className="absolute left-3 right-3 top-[11px] h-px bg-line" />
-        <motion.div
-          className="absolute left-3 top-[11px] h-px bg-amber"
-          style={{ boxShadow: "0 0 10px rgba(255,181,71,.9)" }}
-          animate={{ width: `calc(${(done ? 1 : idx / (STAGES.length - 1)) * 100}% - 24px)` }}
-          transition={{ type: "spring", stiffness: 50, damping: 18 }}
-        />
-        {STAGES.map(([k, label], i) => {
-          const state = done || i < idx ? "past" : i === idx ? "now" : "future";
-          return (
-            <div key={k} className="relative z-10 flex flex-col items-center gap-2">
-              <motion.div
-                animate={state === "now" ? { scale: [1, 1.25, 1] } : { scale: 1 }}
-                transition={state === "now" ? { repeat: Infinity, duration: 1.6 } : {}}
-                className={`grid h-[22px] w-[22px] place-items-center rounded-full border text-[9px] font-mono ${
-                  state === "past" ? "border-amber bg-amber text-black" : state === "now" ? "border-amber bg-bg text-amber glow-amber" : "border-line bg-bg text-muted"
-                }`}
-              >
-                {state === "past" ? "✓" : i + 1}
-              </motion.div>
-              <span className={`font-mono text-[10px] uppercase tracking-wider ${state === "future" ? "text-muted/60" : state === "now" ? "text-amber" : "text-ink"}`}>{label}</span>
-            </div>
-          );
-        })}
+    <div className="mt-10">
+      <div className="no-scrollbar overflow-x-auto">
+        <div className="relative flex min-w-[880px] items-center justify-between px-1">
+          <div className="absolute left-3 right-3 top-[11px] h-px bg-hairline" />
+          <motion.div
+            className="absolute left-3 top-[11px] h-px bg-ink"
+            animate={{ width: `calc(${(done ? 1 : idx / (STAGES.length - 1)) * 100}% - 24px)` }}
+            transition={{ type: "spring", stiffness: 50, damping: 18 }}
+          />
+          {STAGES.map(([k, label], i) => {
+            const state = done || i < idx ? "past" : i === idx ? "now" : "future";
+            return (
+              <div key={k} className="relative z-10 flex flex-col items-center gap-2">
+                <motion.div
+                  animate={state === "now" ? { scale: [1, 1.18, 1] } : { scale: 1 }}
+                  transition={state === "now" ? { repeat: Infinity, duration: 1.6 } : {}}
+                  className={`grid h-[22px] w-[22px] place-items-center rounded-full border font-mono text-[9px] ${
+                    state === "past" ? "border-ink bg-ink text-paper" : state === "now" ? "border-rec bg-card text-rec" : "border-hairline bg-paper text-graphite"
+                  }`}
+                >
+                  {state === "past" ? "✓" : i + 1}
+                </motion.div>
+                <span className={`text-[11px] ${state === "future" ? "text-graphite/60" : state === "now" ? "font-medium text-rec" : "text-ink"}`}>{label}</span>
+              </div>
+            );
+          })}
+        </div>
       </div>
-      <div className="mt-2 text-right font-mono text-[10px] text-muted">{progress}%</div>
+      <div className="mt-2 text-right font-mono text-[11px] text-graphite">{progress}%</div>
     </div>
   );
 }
@@ -321,47 +327,52 @@ function Screen({ project, view }: { project: Project | null; view: View }) {
   const chosen = tab === "auto" ? available[0] : available.find(([k]) => k === tab) || available[0];
   const src = chosen?.[1] || null;
   return (
-    <div className="overflow-hidden rounded-2xl border border-line bg-black">
-      <div className={`relative ${aspectClass(project?.aspect_ratio)} w-full overflow-hidden scanline`}>
+    <div className="window-shadow overflow-hidden rounded-[22px] border border-black/60 bg-screen text-screen-ink">
+      <div className={`relative ${aspectClass(project?.aspect_ratio)} w-full overflow-hidden`}>
         <AnimatePresence mode="wait">
           {src ? (
             <motion.video key={src} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} src={src} controls autoPlay muted={chosen?.[0] !== "final"} loop={chosen?.[0] !== "final"} playsInline className="absolute inset-0 h-full w-full bg-black object-contain" />
           ) : (
-            <motion.div key="wait" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="absolute inset-0 aurora">
-              <div className="absolute inset-0 grid place-items-center">
+            <motion.div key="wait" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="standby absolute inset-0">
+              <div className="absolute inset-0 grid place-items-center px-6">
                 <div className="text-center">
-                  <div className="font-mono text-[11px] uppercase tracking-[0.3em] text-muted">{project?.stage || "standing by"}</div>
-                  <div className="mt-3 font-display text-3xl sm:text-5xl">{project?.status === "queued" ? "Waiting for the director…" : "Rolling…"}</div>
-                  <div className="mx-auto mt-5 h-1 w-48 overflow-hidden rounded bg-white/10">
-                    <motion.div className="h-full bg-amber" animate={{ x: ["-100%", "200%"] }} transition={{ repeat: Infinity, duration: 1.4, ease: "easeInOut" }} style={{ width: "40%" }} />
+                  <div className="font-mono text-[11px] uppercase tracking-[0.2em] text-screen-muted">{project?.stage || "standing by"}</div>
+                  <div className="accent mt-3 text-3xl sm:text-5xl">{project?.status === "queued" ? "Waiting for the director…" : "Rolling…"}</div>
+                  <div className="mx-auto mt-6 h-[3px] w-48 overflow-hidden rounded-full bg-white/10">
+                    <motion.div className="h-full rounded-full bg-screen-ink" animate={{ x: ["-100%", "250%"] }} transition={{ repeat: Infinity, duration: 1.4, ease: "easeInOut" }} style={{ width: "40%" }} />
                   </div>
                 </div>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
-        <div className="pointer-events-none absolute left-3 top-3 rounded bg-black/60 px-2 py-0.5 font-mono text-[10px] text-ink">{chosen?.[0]?.toUpperCase() || "STANDBY"}</div>
+        <div className="pointer-events-none absolute left-3 top-3 flex items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-1 font-mono text-[10px] text-white backdrop-blur">
+          {!src && <span className="h-1.5 w-1.5 rounded-full bg-rec rec-dot" />}
+          {chosen?.[0] ? chosen[0].replace(/^./, (c) => c.toUpperCase()) : "Standby"}
+        </div>
       </div>
-      <div className="flex flex-wrap items-center gap-2 border-t border-line p-3">
+      {(available.length > 0 || project?.want_4k) && (
+      <div className="flex flex-wrap items-center gap-1.5 border-t border-screen-line p-3">
         {available.map(([k]) => (
-          <button key={k} onClick={() => setTab(k)} className={`rounded-full border px-3 py-1 font-mono text-[11px] uppercase ${chosen?.[0] === k ? "border-amber text-amber" : "border-line text-muted hover:text-ink"}`}>
+          <button key={k} onClick={() => setTab(k)} aria-pressed={chosen?.[0] === k} className={`rounded-full px-3 py-1 text-[12px] capitalize transition ${chosen?.[0] === k ? "bg-screen-ink text-screen" : "text-screen-muted hover:text-screen-ink"}`}>
             {k}
           </button>
         ))}
         <div className="ml-auto flex items-center gap-2">
           {project?.video_4k_url && (
-            <button onClick={() => setUse4k((v) => !v)} className={`rounded-full border px-3 py-1 font-mono text-[11px] ${use4k ? "border-cyan text-cyan" : "border-line text-muted"}`}>
+            <button onClick={() => setUse4k((v) => !v)} className="rounded-full border border-screen-line px-3 py-1 font-mono text-[11px] text-screen-ink">
               {use4k ? "4K" : "1080p"}
             </button>
           )}
-          {project?.want_4k && !project?.video_4k_url && project?.status === "done" && <span className="font-mono text-[11px] text-muted">4K upscaling…</span>}
+          {project?.want_4k && !project?.video_4k_url && project?.status === "done" && <span className="text-[12px] text-screen-muted">Upscaling to 4K…</span>}
           {final && (
-            <a href={final} download className="rounded-full bg-ink px-3 py-1 font-mono text-[11px] text-bg hover:bg-amber">
+            <a href={final} download className="rounded-full bg-screen-ink px-3.5 py-1 text-[12px] font-medium text-screen hover:bg-white">
               Download
             </a>
           )}
         </div>
       </div>
+      )}
     </div>
   );
 }
@@ -376,21 +387,31 @@ function Media({ url, className }: { url?: string; className?: string }) {
   );
 }
 
+function SectionTitle({ title, meta }: { title: string; meta?: string }) {
+  return (
+    <div className="mb-4 flex items-end justify-between gap-4">
+      <h2 className="display text-3xl">{title}</h2>
+      {meta && <span className="font-mono text-[12px] text-graphite">{meta}</span>}
+    </div>
+  );
+}
+
+const KIND_TRACK: Record<string, string> = { generated: "bg-trk-v", footage: "bg-trk-v", keyframe: "bg-graphite", planned: "bg-hairline" };
+
 function Storyboard({ view }: { view: View }) {
   return (
     <section>
-      <div className="mb-3 flex items-end justify-between">
-        <h2 className="font-display text-3xl">Storyboard</h2>
-        <span className="font-mono text-[11px] text-muted">{view.shots.length} shots</span>
-      </div>
+      <SectionTitle title="Storyboard" meta={`${view.shots.length} shots`} />
       {view.refs.length > 0 && (
-        <div className="no-scrollbar mb-4 flex gap-3 overflow-x-auto">
+        <div className="no-scrollbar mb-5 flex gap-3 overflow-x-auto">
           {view.refs.map((r, i) => (
-            <motion.div key={r.name + i} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="w-32 shrink-0">
-              <div className="aspect-square overflow-hidden rounded-lg border border-cyan/40 bg-panel-2">
+            <motion.div key={r.name + i} initial={{ opacity: 0, scale: 0.94 }} animate={{ opacity: 1, scale: 1 }} className="w-28 shrink-0">
+              <div className="aspect-square overflow-hidden rounded-xl border border-hairline bg-paper-2">
                 <Media url={r.url} className="h-full w-full object-cover" />
               </div>
-              <div className="mt-1 truncate font-mono text-[10px] text-cyan">ref · {r.name}</div>
+              <div className="mt-1.5 truncate text-[12px] text-graphite">
+                <span className="text-ink">Ref</span> · {r.name}
+              </div>
             </motion.div>
           ))}
         </div>
@@ -398,7 +419,7 @@ function Storyboard({ view }: { view: View }) {
       {view.shots.length === 0 ? (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           {[0, 1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="aspect-video rounded-lg border border-line shimmer" />
+            <div key={i} className="aspect-video rounded-xl border border-hairline shimmer" />
           ))}
         </div>
       ) : (
@@ -408,17 +429,19 @@ function Storyboard({ view }: { view: View }) {
               const yt = s.clip?.youtube_id ? ytThumb(str(s.clip.youtube_id)) : undefined;
               const media = s.shot || s.graphic || s.keyframe || yt;
               const kind = s.shot ? s.model || "generated" : s.graphic ? s.engine || "graphic" : s.clip ? "footage" : s.keyframe ? "keyframe" : s.plan?.kind || "planned";
+              const bar = s.graphic ? "bg-trk-g" : KIND_TRACK[s.shot ? "generated" : s.clip ? "footage" : s.keyframe ? "keyframe" : "planned"];
               return (
-                <motion.div key={s.id} layout initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: Math.min(i, 8) * 0.04 }} className="group overflow-hidden rounded-lg border border-line bg-panel">
-                  <div className="relative aspect-video bg-panel-2">
-                    {media ? <Media url={media} className="h-full w-full object-cover" /> : <div className="h-full w-full shimmer" />}
-                    <div className="absolute left-1.5 top-1.5 rounded bg-black/70 px-1.5 py-0.5 font-mono text-[9px] text-amber">{s.id}</div>
-                    <div className="absolute right-1.5 top-1.5 rounded bg-black/70 px-1.5 py-0.5 font-mono text-[9px] text-ink/80">{kind}</div>
-                    {s.voice && <div className="absolute bottom-1.5 right-1.5 rounded bg-black/70 px-1.5 py-0.5 font-mono text-[9px] text-green">♪ vo</div>}
+                <motion.div key={s.id} layout initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: Math.min(i, 8) * 0.04 }} className="overflow-hidden rounded-xl border border-hairline bg-card">
+                  <div className="relative aspect-video bg-screen">
+                    {media ? <Media url={media} className="h-full w-full object-cover" /> : <div className="h-full w-full shimmer-dark" />}
+                    <div className="absolute left-1.5 top-1.5 rounded-full bg-black/65 px-2 py-0.5 font-mono text-[9px] text-white">{s.id}</div>
+                    <div className="absolute right-1.5 top-1.5 rounded-full bg-black/65 px-2 py-0.5 font-mono text-[9px] text-white/80">{kind}</div>
+                    {s.voice && <div className="absolute bottom-1.5 right-1.5 rounded-full bg-trk-a px-2 py-0.5 font-mono text-[9px] text-white">VO</div>}
                   </div>
-                  <div className="p-2">
-                    <p className="line-clamp-2 text-[11px] text-ink/90">{s.plan?.narration || s.plan?.visual || str(s.clip?.title) || "…"}</p>
-                    {s.plan?.direction && <p className="mt-1 line-clamp-1 font-mono text-[9px] italic text-muted">voice: {s.plan.direction}</p>}
+                  <div className={`h-[3px] ${bar}`} />
+                  <div className="p-2.5">
+                    <p className="line-clamp-2 text-[12px] leading-snug text-ink">{s.plan?.narration || s.plan?.visual || str(s.clip?.title) || "…"}</p>
+                    {s.plan?.direction && <p className="accent mt-1 line-clamp-1 text-[12px] text-graphite">Voice: {s.plan.direction}</p>}
                   </div>
                 </motion.div>
               );
@@ -433,19 +456,23 @@ function Storyboard({ view }: { view: View }) {
 function FootageBin({ clips }: { clips: Record<string, unknown>[] }) {
   return (
     <section>
-      <h2 className="mb-3 font-display text-3xl">Footage bin <span className="font-mono text-xs text-muted">Creative Commons</span></h2>
+      <SectionTitle title="Footage bin" meta="Creative Commons" />
       <div className="no-scrollbar flex gap-3 overflow-x-auto pb-2">
         {clips.map((c, i) => (
-          <a key={i} href={`https://www.youtube.com/watch?v=${str(c.youtube_id)}&t=${Math.floor(Number(c.start) || 0)}`} target="_blank" rel="noreferrer" className="w-56 shrink-0 overflow-hidden rounded-lg border border-line bg-panel transition hover:border-amber/50">
+          <a key={i} href={`https://www.youtube.com/watch?v=${str(c.youtube_id)}&t=${Math.floor(Number(c.start) || 0)}`} target="_blank" rel="noreferrer" className="w-56 shrink-0 overflow-hidden rounded-xl border border-hairline bg-card transition hover:border-ink/25">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={str(c.thumb) || ytThumb(str(c.youtube_id))} alt="" className="aspect-video w-full object-cover" />
-            <div className="p-2">
-              <div className="line-clamp-1 text-xs">{str(c.title)}</div>
-              <div className="mt-0.5 flex justify-between font-mono text-[9px] text-muted">
+            <div className="p-2.5">
+              <div className="line-clamp-1 text-[13px]">{str(c.title)}</div>
+              <div className="mt-0.5 flex justify-between gap-2 font-mono text-[10px] text-graphite">
                 <span className="truncate">{str(c.channel)}</span>
-                {c.start != null && <span>{timecode(Number(c.start))}–{timecode(Number(c.end))}</span>}
+                {c.start != null && (
+                  <span className="shrink-0">
+                    {timecode(Number(c.start))}–{timecode(Number(c.end))}
+                  </span>
+                )}
               </div>
-              <div className="mt-1 line-clamp-1 font-mono text-[9px] text-green">{str(c.license) || "CC BY"}</div>
+              <div className="mt-1 line-clamp-1 font-mono text-[10px] text-trk-a">{str(c.license) || "CC BY"}</div>
             </div>
           </a>
         ))}
@@ -463,18 +490,18 @@ function Typewriter({ text }: { text: string }) {
   return (
     <span>
       {text.slice(0, n)}
-      {n < text.length && <span className="ml-0.5 inline-block h-3 w-1.5 animate-pulse bg-amber align-middle" />}
+      {n < text.length && <span className="ml-0.5 inline-block h-3 w-1.5 animate-pulse bg-screen-ink align-middle" />}
     </span>
   );
 }
 
 const KIND_COLOR: Record<string, string> = {
-  thought: "text-ink",
-  tool: "text-cyan",
-  stage: "text-amber",
-  error: "text-rec",
-  critique: "text-amber-2",
-  done: "text-green",
+  thought: "text-screen-ink",
+  tool: "text-[#8fa6ec]",
+  stage: "text-[#e9b85c]",
+  error: "text-[#ff7b75]",
+  critique: "text-[#b597ee]",
+  done: "text-[#6fd39e]",
 };
 
 function DirectorFeed({ events }: { events: Ev[] }) {
@@ -485,18 +512,23 @@ function DirectorFeed({ events }: { events: Ev[] }) {
     ref.current?.scrollTo({ top: ref.current.scrollHeight, behavior: "smooth" });
   }, [shown.length]);
   return (
-    <section className="overflow-hidden rounded-2xl border border-line bg-panel">
-      <div className="flex items-center justify-between border-b border-line px-4 py-2.5">
-        <span className="font-mono text-[11px] uppercase tracking-widest text-muted">Director · Claude Code</span>
-        <span className="font-mono text-[10px] text-muted">{events.length} events</span>
+    <section className="window-shadow overflow-hidden rounded-[20px] border border-black/60 bg-screen text-screen-ink">
+      <div className="flex items-center gap-3 border-b border-screen-line px-4 py-3">
+        <div className="flex gap-1.5">
+          <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]" />
+          <span className="h-2.5 w-2.5 rounded-full bg-[#febc2e]" />
+          <span className="h-2.5 w-2.5 rounded-full bg-[#28c840]" />
+        </div>
+        <span className="flex-1 truncate text-center font-mono text-[11px] text-screen-muted">Director · Claude Code</span>
+        <span className="font-mono text-[10px] text-screen-muted">{events.length}</span>
       </div>
       <div ref={ref} className="h-[420px] space-y-2 overflow-y-auto p-4 font-mono text-[12px] leading-relaxed">
-        {shown.length === 0 && <div className="text-muted">Waiting for the first take…</div>}
+        {shown.length === 0 && <div className="text-screen-muted">Waiting for the first take…</div>}
         {shown.map((e) => (
           <motion.div key={e.id} initial={{ opacity: 0, x: -6 }} animate={{ opacity: 1, x: 0 }} className="flex gap-2">
-            <span className="shrink-0 text-muted/60">{new Date(e.created_at).toLocaleTimeString([], { hour12: false })}</span>
-            <span className={`shrink-0 uppercase ${KIND_COLOR[e.kind] || "text-muted"}`}>{e.kind.slice(0, 5).padEnd(5, " ")}</span>
-            <span className={e.kind === "thought" ? "text-ink" : "text-ink/75"}>{e.id === last?.id && e.kind === "thought" ? <Typewriter text={e.message} /> : e.message}</span>
+            <span className="shrink-0 text-screen-muted/60">{new Date(e.created_at).toLocaleTimeString([], { hour12: false })}</span>
+            <span className={`shrink-0 uppercase ${KIND_COLOR[e.kind] || "text-screen-muted"}`}>{e.kind.slice(0, 5).padEnd(5, " ")}</span>
+            <span className={e.kind === "thought" ? "text-screen-ink" : "text-screen-ink/75"}>{e.id === last?.id && e.kind === "thought" ? <Typewriter text={e.message} /> : e.message}</span>
           </motion.div>
         ))}
       </div>
@@ -506,27 +538,27 @@ function DirectorFeed({ events }: { events: Ev[] }) {
 
 function CritiquePanel({ critiques }: { critiques: View["critiques"] }) {
   return (
-    <section className="rounded-2xl border border-line bg-panel p-4">
-      <h3 className="mb-3 font-mono text-[11px] uppercase tracking-widest text-muted">Critic · screenshots + transcript</h3>
-      <div className="space-y-4">
+    <section className={panel}>
+      <h3 className={panelTitle}>Critic · screenshots and transcript</h3>
+      <div className="space-y-5">
         {critiques.map((c) => (
           <div key={c.round}>
-            <div className="mb-1.5 flex items-center justify-between">
-              <span className="font-display text-xl">Round {c.round}</span>
-              <span className="font-mono text-[10px] text-muted">{c.issues.length} notes</span>
+            <div className="mb-2 flex items-baseline justify-between">
+              <span className="display text-xl">Round {c.round}</span>
+              <span className="font-mono text-[11px] text-graphite">{c.issues.length} notes</span>
             </div>
             {c.contact_sheet_url && (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={c.contact_sheet_url} alt="contact sheet" className="mb-2 w-full rounded-lg border border-line" />
+              <img src={c.contact_sheet_url} alt="Contact sheet" className="mb-2 w-full rounded-lg border border-hairline" />
             )}
-            <ul className="space-y-1">
+            <ul className="space-y-1.5">
               {c.issues.slice(0, 8).map((iss, i) => (
-                <li key={i} className="flex gap-2 text-[12px] text-ink/85">
-                  <span className="text-amber-2">›</span>
+                <li key={i} className="flex gap-2 text-[13px] leading-snug text-ink">
+                  <span className="text-graphite">›</span>
                   <span>{typeof iss === "string" ? iss : str((iss as Record<string, unknown>).note || (iss as Record<string, unknown>).issue || JSON.stringify(iss))}</span>
                 </li>
               ))}
-              {c.issues.length === 0 && <li className="text-[12px] text-green">{c.message || "Clean cut."}</li>}
+              {c.issues.length === 0 && <li className="text-[13px] text-trk-a">{c.message || "Clean cut."}</li>}
             </ul>
           </div>
         ))}
@@ -538,26 +570,26 @@ function CritiquePanel({ critiques }: { critiques: View["critiques"] }) {
 function AudioPanel({ view }: { view: View }) {
   if (!view.music && view.voices.length === 0 && !view.captions) return null;
   return (
-    <section className="rounded-2xl border border-line bg-panel p-4">
-      <h3 className="mb-3 font-mono text-[11px] uppercase tracking-widest text-muted">Sound</h3>
+    <section className={panel}>
+      <h3 className={panelTitle}>Sound</h3>
       {view.music && (
         <div className="mb-3">
-          <div className="mb-1 text-xs text-ink/80">♫ {view.music.message}</div>
+          <div className="mb-1.5 text-[13px] text-ink">♫ {view.music.message}</div>
           <audio src={view.music.url} controls className="h-8 w-full" />
         </div>
       )}
       {view.voices.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
           {view.voices.map((v, i) => (
-            <button key={i} onClick={() => new Audio(v.url).play()} className="rounded-full border border-green/40 px-2 py-0.5 font-mono text-[10px] text-green hover:bg-green/10">
+            <button key={i} onClick={() => new Audio(v.url).play()} className="rounded-full border border-trk-a/40 px-2.5 py-0.5 font-mono text-[11px] text-trk-a transition hover:bg-trk-a/10">
               ▶ {v.shot_id || `vo${i + 1}`} {v.duration ? `${v.duration.toFixed(1)}s` : ""}
             </button>
           ))}
         </div>
       )}
       {view.captions && (
-        <a href={view.captions} target="_blank" rel="noreferrer" className="mt-3 inline-block font-mono text-[11px] text-cyan underline">
-          word-level captions ↗
+        <a href={view.captions} target="_blank" rel="noreferrer" className="mt-3 inline-block text-[13px] text-ink underline underline-offset-4">
+          Word-level captions ↗
         </a>
       )}
     </section>
@@ -567,20 +599,20 @@ function AudioPanel({ view }: { view: View }) {
 function CreditsPanel({ credits }: { credits: Project["credits"] | View["ledger"] }) {
   const list = (credits || []) as { kind?: string; title?: string; channel?: string; url?: string; license?: string }[];
   return (
-    <section className="rounded-2xl border border-line bg-panel p-4">
-      <h3 className="mb-3 font-mono text-[11px] uppercase tracking-widest text-muted">Credits · license ledger</h3>
+    <section className={panel}>
+      <h3 className={panelTitle}>Credits · license ledger</h3>
       {list.length === 0 ? (
-        <p className="text-[12px] text-muted">Every Creative Commons clip and track used lands here, with its license.</p>
+        <p className="text-[13px] leading-relaxed text-graphite">Every Creative Commons clip and track used lands here, with its license.</p>
       ) : (
-        <ul className="space-y-2">
+        <ul className="divide-y divide-hairline">
           {list.map((c, i) => (
-            <li key={i} className="text-[12px]">
-              <a href={c.url} target="_blank" rel="noreferrer" className="text-ink hover:text-amber">
+            <li key={i} className="py-2 text-[13px] first:pt-0 last:pb-0">
+              <a href={c.url} target="_blank" rel="noreferrer" className="text-ink hover:underline">
                 {c.title || c.url}
               </a>
-              <div className="font-mono text-[10px] text-muted">
+              <div className="mt-0.5 font-mono text-[11px] text-graphite">
                 {c.kind ? `${c.kind} · ` : ""}
-                {c.channel} · <span className="text-green">{c.license}</span>
+                {c.channel} · <span className="text-trk-a">{c.license}</span>
               </div>
             </li>
           ))}
