@@ -105,8 +105,20 @@ def download_section(youtube_id: str, start: float, end: float, out: Path) -> Pa
         opts = {"format": "bv*[height<=1080][ext=mp4]+ba[ext=m4a]/b[height<=1080][ext=mp4]/bv*[height<=1080]+ba/b",
                 "download_ranges": download_range_func(None, [(start, end)]), "force_keyframes_at_cuts": True,
                 "merge_output_format": "mp4", "outtmpl": str(cached.with_suffix(".%(ext)s")), "quiet": True, "no_warnings": True, "noprogress": True}
-        with YoutubeDL(opts) as ydl:
-            ydl.download([f"https://www.youtube.com/watch?v={youtube_id}"])
+        # YouTube rate-limits and bot-checks heavy use from one machine; back off and retry rather than give up
+        import time as _time
+        for attempt in range(4):
+            try:
+                with YoutubeDL(opts | {"socket_timeout": 30, "retries": 3}) as ydl:
+                    ydl.download([f"https://www.youtube.com/watch?v={youtube_id}"])
+                break
+            except Exception as e:  # noqa: BLE001
+                msg = str(e)
+                if attempt == 3 or not any(k in msg for k in ("429", "Too Many", "Sign in to confirm", "bot")):
+                    raise
+                wait = 15 * (attempt + 1)
+                log(f"youtube throttled ({msg[:80]}), retrying in {wait}s")
+                _time.sleep(wait)
         if not cached.exists():
             cands = sorted(CACHE.glob(cached.stem + ".*"))
             if not cands:
