@@ -35,7 +35,13 @@ d) Style: {p.get('style') or 'calm documentary, narrated like a university profe
 This project was ordered from the Cutroom website and already exists: call project_start with the brief above and it
 will reuse project id {p['id']}. Work autonomously; nobody is available to answer questions, so make reasonable
 choices and keep going. {'After the final critique, upscale the final cut to 4K before publishing.' if p.get('want_4k') else 'Do not upscale to 4K.'}
-Finish by calling publish."""
+Finish by calling publish.
+
+Work like a professional crew on a deadline: aim to publish within about {max(25, int((p.get('length_s') or 60) / 60 * 12))} minutes.
+Use only the Cutroom tools for media: search_footage to find clips, clip_transcript to find the exact seconds of a famous
+line, add_clip to download just the section you need, critique to look at anything. Do not download or process videos
+yourself with shell commands. Lock the plan after one round of scouting rather than researching every moment
+exhaustively, run independent tool calls in parallel, and limit the critique to two rounds."""
 
 
 def claim() -> dict | None:

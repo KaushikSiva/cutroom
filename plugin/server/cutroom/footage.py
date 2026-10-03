@@ -12,10 +12,46 @@ CC_FILTER = "EgIwAQ%3D%3D"  # YouTube search filter: Creative Commons
 CACHE = config.REPO / "projects" / "_footage_cache"
 
 
+def cc_only() -> bool:
+    return (config.get("CUTROOM_FOOTAGE_LICENSE") or "cc").lower() != "any"
+
+
+def transcript(youtube_id: str, contains: str | None = None, lang: str = "en") -> dict:
+    """-> {lines: [{start, end, text}], source} from YouTube captions (json3), no media download."""
+    import json as _json
+    import urllib.request
+    from yt_dlp import YoutubeDL
+    with YoutubeDL({"quiet": True, "no_warnings": True, "skip_download": True, "socket_timeout": 20}) as ydl:
+        i = ydl.extract_info(f"https://www.youtube.com/watch?v={youtube_id}", download=False)
+    lines, source = [], None
+    for kind in ("subtitles", "automatic_captions"):
+        tracks = i.get(kind) or {}
+        key = next((k for k in tracks if k == lang), None) or next((k for k in tracks if k.startswith(lang)), None) \
+            or next(iter(tracks), None)
+        fmt = next((f for f in tracks.get(key) or [] if f.get("ext") == "json3"), None) if key else None
+        if not fmt:
+            continue
+        with urllib.request.urlopen(fmt["url"], timeout=20) as r:
+            data = _json.load(r)
+        for ev in data.get("events", []):
+            text = "".join(seg.get("utf8", "") for seg in ev.get("segs") or []).strip()
+            if text:
+                st = ev.get("tStartMs", 0) / 1000
+                lines.append({"start": round(st, 2), "end": round(st + ev.get("dDurationMs", 0) / 1000, 2), "text": text})
+        source = f"{kind}:{key}"
+        break
+    if contains:
+        hits = {k for k, ln in enumerate(lines) if contains.lower() in ln["text"].lower()}
+        keep = sorted({j for k in hits for j in range(max(0, k - 2), min(len(lines), k + 3))})
+        lines = [lines[k] for k in keep]
+    return {"youtube_id": youtube_id, "title": i.get("title"), "duration": i.get("duration"), "source": source,
+            "lines": lines[:400], "truncated": len(lines) > 400}
+
+
 def search(query: str, n: int = 6, shot_text: str | None = None, pid: str | None = None) -> list[dict]:
     """-> [{id, url, title, channel, license, duration, thumb, description, rank?}] (Creative Commons only)"""
     from yt_dlp import YoutubeDL
-    cc_only = (config.get("CUTROOM_FOOTAGE_LICENSE") or "cc").lower() != "any"
+    cc_only = globals()["cc_only"]()
     url = "https://www.youtube.com/results?" + urllib.parse.urlencode({"search_query": query}) + ("&sp=" + CC_FILTER if cc_only else "")
     with YoutubeDL({"quiet": True, "no_warnings": True, "extract_flat": True, "playlistend": n * 3}) as ydl:
         try:

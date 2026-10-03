@@ -191,7 +191,7 @@ async def gen_shot(project_id: str, shot_id: str, prompt: str, keyframe: str | N
 # ---------------------------------------------------------------- real footage
 @mcp.tool()
 async def search_footage(project_id: str, query: str, n: int = 6, shot_id: str | None = None) -> dict:
-    """Search YouTube for Creative Commons videos. Returns title, channel, duration, license, description, chapters
+    """Search YouTube for videos (Creative Commons only unless the studio allows any license). Returns title, channel, duration, license, description, chapters
     and a Jev relevance score per candidate. Pick a section and call add_clip."""
     def run():
         _tool_event(project_id, "search_footage", {"query": query, "shot_id": shot_id})
@@ -207,12 +207,23 @@ async def search_footage(project_id: str, query: str, n: int = 6, shot_id: str |
 
 
 @mcp.tool()
+async def clip_transcript(project_id: str, youtube_id: str, contains: str | None = None) -> dict:
+    """Timed transcript of a YouTube video from its captions (manual, else automatic), without downloading the video.
+    Use it to find the exact in/out seconds of a famous line for a keep_audio shot. `contains` filters to lines with
+    that text (case-insensitive) plus their neighbours."""
+    def run():
+        _tool_event(project_id, "clip_transcript", {"youtube_id": youtube_id, "contains": contains})
+        return footage.transcript(youtube_id, contains)
+    return await bg(run, project_id)
+
+
+@mcp.tool()
 async def add_clip(project_id: str, youtube_id: str, start: float, end: float, shot_id: str) -> dict:
-    """Download only [start, end] seconds of a Creative Commons video for a shot and record it in the license ledger."""
+    """Download only [start, end] seconds of a video for a shot and record it in the license ledger."""
     def run():
         _tool_event(project_id, "add_clip", {"youtube_id": youtube_id, "start": start, "end": end, "shot_id": shot_id})
         meta = footage.info(youtube_id)
-        if "creative commons" not in meta["license"].lower():
+        if footage.cc_only() and "creative commons" not in meta["license"].lower():
             raise ValueError(f"{youtube_id} is not Creative Commons licensed ({meta['license'] or 'standard YouTube license'})")
         out = project.pdir(project_id) / "clips" / f"{shot_id}.mp4"
         footage.download_section(youtube_id, start, end, out)

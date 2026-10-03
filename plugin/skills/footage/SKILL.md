@@ -22,6 +22,12 @@ Whatever the license, every clip you use is recorded with its source and license
 Prefer the original broadcaster or archive's upload over re-uploads. If a search returns nothing usable, rephrase or
 change the shot to `generated` or `graphic`.
 
+## Finding a famous line
+
+For a `keep_audio` shot, call `clip_transcript(project_id, youtube_id, contains="tryst with destiny")`. It returns the
+video's caption lines with start and end seconds, without downloading anything, so you can set in/out points on the
+exact words. Captions are approximate; add about half a second either side.
+
 ## Choosing the moment
 
 Watch before choosing: the tool's candidate list includes chapter and description text, and you can call
