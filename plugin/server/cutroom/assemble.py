@@ -8,7 +8,7 @@ from pathlib import Path
 
 import opentimelineio as otio
 
-from . import project
+from . import config, project
 from .config import log
 from .providers import gemini_tts, openrouter
 from .util import FONT, duration, esc_drawtext, ffmpeg, has_audio
@@ -246,12 +246,12 @@ def render_otio(otio_path: Path, out_mp4: Path, w: int, h: int, mode: str = "fin
         fc.append(f"{''.join(vo_labels)}amix=inputs={len(vo_labels)}:normalize=0,apad,atrim=0:{total:.3f}[vo]")
     if music:
         args += ["-stream_loop", "-1", "-i", music[0]]
-        fc.append(f"[{n}:a]aresample=48000,aformat=channel_layouts=stereo,atrim=0:{total:.3f},volume=0.55,"
+        fc.append(f"[{n}:a]aresample=48000,aformat=channel_layouts=stereo,atrim=0:{total:.3f},volume={float(config.get("CUTROOM_MUSIC_GAIN") or 0.55):.2f},"
                   f"afade=t=in:d=1.5,afade=t=out:st={max(0, total - 3):.3f}:d=3[mu]")
         n += 1
     if vo_labels and music:
         fc.append("[vo]asplit=2[vo1][vo2]")
-        fc.append("[mu][vo2]sidechaincompress=threshold=0.02:ratio=10:attack=15:release=450:makeup=1[duck]")
+        fc.append(f"[mu][vo2]sidechaincompress=threshold=0.02:ratio={float(config.get("CUTROOM_MUSIC_DUCK") or 10):g}:attack=15:release=450:makeup=1[duck]")
         fc.append("[vo1][duck]amix=inputs=2:normalize=0[mix]")
     elif vo_labels:
         fc.append("[vo]anull[mix]")
