@@ -14,12 +14,32 @@ def words(media_path: str | Path) -> dict:
     ffmpeg("-i", media_path, "-vn", "-ar", "16000", "-ac", "1", wav)
     try:
         import mlx_whisper
-        r = mlx_whisper.transcribe(str(wav), path_or_hf_repo=config.get("CUTROOM_ASR_MODEL"), word_timestamps=True, language="en", verbose=None)
+        # condition_on_previous_text=False stops Whisper looping a sentence over music-only stretches
+        r = mlx_whisper.transcribe(str(wav), path_or_hf_repo=config.get("CUTROOM_ASR_MODEL"), word_timestamps=True,
+                                   language="en", verbose=None, condition_on_previous_text=False,
+                                   hallucination_silence_threshold=2.0)
         ws = [{"word": w["word"].strip(), "start": float(w["start"]), "end": float(w["end"])}
-              for seg in r.get("segments", []) for w in seg.get("words", []) if w["word"].strip()]
+              for seg in _clean(r.get("segments", [])) for w in seg.get("words", []) if w["word"].strip()]
         if ws:
             return {"words": ws, "text": r.get("text", "").strip(), "engine": "mlx-whisper"}
     except Exception as e:  # noqa: BLE001
         log("mlx-whisper failed:", repr(e)[:300])
     ws = elevenlabs.scribe(wav) or []
     return {"words": ws, "text": " ".join(w["word"] for w in ws), "engine": "elevenlabs-scribe" if ws else "none"}
+
+
+def _clean(segments: list) -> list:
+    """Drop Whisper's typical hallucinations: segments it thinks are not speech, low-confidence or looping text,
+    and a segment that repeats the one before it (common over a music-only ending)."""
+    out, prev = [], None
+    for seg in segments:
+        text = (seg.get("text") or "").strip().lower()
+        if seg.get("no_speech_prob", 0) > 0.6 and seg.get("avg_logprob", 0) < -0.8:
+            continue
+        if seg.get("compression_ratio", 0) > 2.4:
+            continue
+        if text and text == prev:
+            continue
+        out.append(seg)
+        prev = text
+    return out
