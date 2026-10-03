@@ -170,8 +170,8 @@ def gen_video(prompt: str, out: Path, duration_s: float, aspect_ratio: str = "16
                     log("video job timed out", model)
             except Exception as e:  # noqa: BLE001
                 log("video gen error", model, repr(e)[:300])
-    from . import openai_direct
-    res = openai_direct.gen_video(prompt, out, duration_s, aspect_ratio, keyframe, motion)
+    from . import veo_direct
+    res = veo_direct.gen_video(prompt, out, duration_s, aspect_ratio, keyframe, motion)
     if res:
         return res
     if not keyframe or not Path(keyframe).exists():

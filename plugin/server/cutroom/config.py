@@ -24,7 +24,8 @@ DEFAULTS = {
     "CUTROOM_JEV_MODEL": "jev-latest",
     "CUTROOM_VIDEO_TIMEOUT_S": "600",
     "CUTROOM_OPENAI_IMAGE_MODEL": "gpt-image-2.5-sunburst",
-    "CUTROOM_OPENAI_VIDEO_MODEL": "sora-2-pro",
+    "CUTROOM_VEO_MODEL": "veo-3.1-generate-preview",
+    "CUTROOM_VEO_MODEL_FALLBACK": "veo-3.1-fast-generate-preview",
 }
 
 

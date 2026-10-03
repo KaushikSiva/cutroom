@@ -60,6 +60,9 @@ if p.get("title"):
     t.parent = cam
     t.location = (0, vh / 2 - 0.9, -5)
 
+Z = S / 11.0  # keep type size constant on screen when the frame widens
+for ob in [o for o in bpy.data.objects if o.name.startswith('title')]:
+    ob.scale = tuple(v * Z for v in ob.scale)
 lead = int(0.5 * fps)
 per = max(int(0.7 * fps), int((frames - lead - int(1.0 * fps)) / max(1, n)))
 cu.bevel_factor_end = 0.0
@@ -71,7 +74,7 @@ for i, ev in enumerate(events):
     x, y, _ = pos(i)
     f0 = lead + per * i
     side = 1 if i % 2 == 0 else -1
-    bpy.ops.mesh.primitive_uv_sphere_add(radius=0.17, location=(x, y, 0.05))
+    bpy.ops.mesh.primitive_uv_sphere_add(radius=0.17 * (Z if not portrait else 1), location=(x, y, 0.05))
     dot = bpy.context.active_object
     dot.data.materials.append(gold)
     wrap = 16 if portrait else 20
@@ -85,11 +88,11 @@ for i, ev in enumerate(events):
             ob.location.x -= vw * 0.18
         dot.location.x -= vw * 0.18
     else:
-        date = C.text(str(ev.get("date", "")), size=0.66, fnt=serif, mat=gold, name=f"d{i}")
-        date.location = (x, side * 0.95, 0.05)
-        label = C.text("\n".join(textwrap.wrap(str(ev.get("label", "")), wrap)), size=0.32, fnt=med, mat=paper, name=f"l{i}")
+        date = C.text(str(ev.get("date", "")), size=0.66 * Z, fnt=serif, mat=gold, name=f"d{i}")
+        date.location = (x, side * 0.95 * Z, 0.05)
+        label = C.text("\n".join(textwrap.wrap(str(ev.get("label", "")), wrap)), size=0.32 * Z, fnt=med, mat=paper, name=f"l{i}")
         ld = C.dims(label)
-        label.location = (x, side * (1.6 + ld.y / 2), 0.05)
+        label.location = (x, side * (1.6 * Z + ld.y / 2), 0.05)
     for ob in (dot, date, label):
         s0 = tuple(ob.scale)
         ob.scale = (0.001, 0.001, 0.001)
