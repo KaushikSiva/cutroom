@@ -1,6 +1,6 @@
 ---
 name: footage
-description: Find and cut real Creative Commons clips from YouTube into a Cutroom film with yt-dlp search — querying, judging candidates, choosing in/out points and keeping the license ledger. Use for every `footage` shot.
+description: Find and cut real clips from YouTube into a Cutroom film with yt-dlp search — querying, judging candidates, choosing in/out points and keeping the license ledger. Use for every `footage` shot.
 ---
 
 # Real footage from YouTube
