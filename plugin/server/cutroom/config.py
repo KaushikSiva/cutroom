@@ -23,6 +23,8 @@ DEFAULTS = {
     "CUTROOM_ASR_MODEL": "mlx-community/whisper-large-v3-turbo",
     "CUTROOM_JEV_MODEL": "jev-latest",
     "CUTROOM_VIDEO_TIMEOUT_S": "600",
+    "CUTROOM_OPENAI_IMAGE_MODEL": "gpt-image-2.5-sunburst",
+    "CUTROOM_OPENAI_VIDEO_MODEL": "sora-2-pro",
 }
 
 

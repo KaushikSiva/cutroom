@@ -55,6 +55,10 @@ def gen_image(prompt: str, out: Path, aspect_ratio: str = "16:9", refs: list[str
                 return {"path": str(out), "model": model, "fallback": False}
             except Exception as e:  # noqa: BLE001
                 log("image gen error", model, repr(e)[:300])
+    from . import openai_direct
+    res = openai_direct.gen_image(prompt, out, aspect_ratio, refs)
+    if res:
+        return res
     placeholder_card(prompt, out, aspect_ratio)
     return {"path": str(out), "model": "placeholder", "fallback": True}
 
@@ -166,6 +170,10 @@ def gen_video(prompt: str, out: Path, duration_s: float, aspect_ratio: str = "16
                     log("video job timed out", model)
             except Exception as e:  # noqa: BLE001
                 log("video gen error", model, repr(e)[:300])
+    from . import openai_direct
+    res = openai_direct.gen_video(prompt, out, duration_s, aspect_ratio, keyframe, motion)
+    if res:
+        return res
     if not keyframe or not Path(keyframe).exists():
         keyframe = str(out.with_suffix(".png"))
         placeholder_card(prompt, Path(keyframe), aspect_ratio)

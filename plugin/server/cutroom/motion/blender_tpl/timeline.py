@@ -18,8 +18,8 @@ portrait = h > w
 bold = C.font("inter-bold.ttf")
 med = C.font("inter-medium.ttf")
 serif = C.font("fraunces-semibold.ttf")
-line_m = C.material("line", (0.37, 0.70, 0.63, 1), emission=2.5)
-gold = C.material("gold", (0.95, 0.62, 0.16, 1), emission=2.5)
+line_m = C.material("line", (0.37, 0.70, 0.63, 1), emission=1.4)
+gold = C.material("gold", (0.98, 0.55, 0.12, 1), emission=1.5)
 paper = C.material("paper", C.PAPER, emission=1.0)
 
 gap = 4.0
@@ -47,7 +47,7 @@ sc.collection.objects.link(line)
 cu.materials.append(line_m)
 
 # orthographic camera; visible extent along the timeline axis
-S = 11.0
+S = max(11.0, length + 4.0) if not portrait else max(11.0, length + 5.0)
 cam = C.camera((0, 0, 10), (0, 0, 0), ortho_scale=S)
 vw, vh = (S, S * h / w) if w >= h else (S * w / h, S)
 C.area_light((0, 0, 8), (0, 0, 0), energy=300, size=30)

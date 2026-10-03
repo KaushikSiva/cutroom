@@ -35,7 +35,11 @@ doesn't support the narration, or the aspect ratio is wrong.
 The video prompt describes only what changes over the shot: "slow dolly forward; operator turns toward camera; steam
 rises". The keyframe already fixes how it looks. Keep shots to 4–8 s; generate longer moments as two shots.
 
-If a provider is unavailable the tool falls back to a camera move over the keyframe (a Ken Burns push or pan). That is
+Provider order: OpenRouter (Seedance 2.5 / Veo 3.1) when its key is set, then OpenAI directly (GPT Image 2.5
+Sunburst for stills, Sora 2 Pro for video, 4, 8 or 12 s). Sora renders 16:9 or 9:16; square films are cropped from 16:9,
+so keep the subject centred in square projects.
+
+If every provider is unavailable the tool falls back to a camera move over the keyframe (a Ken Burns push or pan). That is
 fine for a few shots; mention it in your summary.
 
 Jev (TypeSafe) scores which engine each shot should use when the plan doesn't say; follow its routing unless you have

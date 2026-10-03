@@ -31,8 +31,8 @@ def xy(lat, lon):
 bold = C.font("inter-bold.ttf")
 med = C.font("inter-medium.ttf")
 grid_m = C.material("grid", (0.37, 0.70, 0.63, 1), emission=0.9)
-gold = C.material("gold", (0.95, 0.62, 0.16, 1), emission=6.0)
-route_m = C.material("route", (0.98, 0.78, 0.35, 1), emission=8.0)
+gold = C.material("gold", (0.98, 0.55, 0.12, 1), emission=1.6)
+route_m = C.material("route", (1.0, 0.72, 0.30, 1), emission=1.8)
 paper = C.material("paper", C.PAPER, emission=1.2)
 ground_m = C.material("ground", (0.035, 0.045, 0.055, 1), roughness=0.8)
 
@@ -80,7 +80,7 @@ cu.materials.append(route_m)
 # camera: tilted perspective looking at the map
 ext_x = max(abs(x) for x, _ in pts) + 1.5
 ext_y = max(abs(y) for _, y in pts) + 1.5
-dist = max(ext_x * (1.0 if not portrait else h / w), ext_y * 1.6) * 1.55 + 3
+dist = max(ext_x * (1.0 if not portrait else h / w), ext_y * 1.6) * 2.0 + 4
 cam = C.camera((0, -dist * 0.75, dist * 0.75), (45, 0, 0), lens=40)
 target = bpy.data.objects.new("target", None)
 sc.collection.objects.link(target)
@@ -99,7 +99,7 @@ if p.get("title"):
     vis = C.visible_size(cam, 12, w, h)
     sc_t = min(1.0, vis[0] * 0.8 / max(td.x, 1e-3))
     t.scale = (sc_t, sc_t, sc_t)
-    t.location = (0, vis[1] / 2 - 1.1, -12)
+    t.location = (0, vis[1] / 2 - 0.75, -12)
     t.rotation_euler = (0, 0, 0)
 
 # timing
@@ -133,7 +133,7 @@ for i, (pl, (x, y)) in enumerate(zip(places, pts)):
         ob.scale = s0
         ob.keyframe_insert("scale", frame=f0 + int(0.45 * fps))
     # camera target follows the route head
-    target.location = (x * 0.15, y * 0.15, 0)
+    target.location = (x * 0.1, y * 0.1 + ext_y * 0.35, 0)
     target.keyframe_insert("location", frame=max(1, f0))
 
 cam.keyframe_insert("location", frame=1)

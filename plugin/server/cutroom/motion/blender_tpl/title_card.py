@@ -21,7 +21,7 @@ vw, vh = C.visible_size(cam, D, w, h)
 serif = C.font("fraunces-semibold.ttf")
 sans = C.font("inter-medium.ttf")
 paper = C.material("paper", C.PAPER, emission=0.18, roughness=0.3)
-gold = C.material("gold", (0.95, 0.62, 0.16, 1), emission=1.6, metallic=0.6, roughness=0.25)
+gold = C.material("gold", (0.98, 0.55, 0.12, 1), emission=1.3, metallic=0.6, roughness=0.25)
 muted = C.material("muted", C.MUTED, emission=0.9)
 
 title_txt = "\n".join(textwrap.wrap(str(p.get("title", "Untitled")), 12 if portrait else 22)) or " "

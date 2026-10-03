@@ -19,7 +19,7 @@ vw, vh = (S, S * h / w) if w >= h else (S * w / h, S)
 bold = C.font("inter-bold.ttf")
 med = C.font("inter-medium.ttf")
 paper = C.material("paper", C.PAPER, emission=1.0)
-gold = C.material("gold", (0.95, 0.62, 0.16, 1), emission=3.0)
+gold = C.material("gold", (0.98, 0.55, 0.12, 1), emission=1.5)
 plate_m = C.material("plate", (0.03, 0.035, 0.045, 1), emission=0.0, alpha=0.82, roughness=0.6)
 
 name = C.text(p.get("name", ""), size=0.62, fnt=bold, mat=paper, align="LEFT", name="name")
