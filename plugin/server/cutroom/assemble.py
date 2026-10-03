@@ -3,6 +3,7 @@
 Tracks: V1 picture (one item per shot), V2 overlay graphics with alpha (lower thirds etc.), A1 voice, A2 music.
 Animatic mode uses keyframe stills (or cards) with a slow push-in, a scratch voice and a shot/timecode burn-in.
 """
+import shutil
 from pathlib import Path
 
 import opentimelineio as otio
@@ -263,6 +264,7 @@ def render_otio(otio_path: Path, out_mp4: Path, w: int, h: int, mode: str = "fin
     ffmpeg(*args, "-filter_complex", ";".join(fc), "-map", "0:v", "-map", "[aout]", "-t", f"{total:.3f}",
            "-c:v", "libx264", "-preset", "medium", "-crf", "18", "-pix_fmt", "yuv420p",
            "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", out_mp4)
+    shutil.rmtree(work, ignore_errors=True)   # intermediate segments can be gigabytes on long films
     return duration(out_mp4)
 
 
