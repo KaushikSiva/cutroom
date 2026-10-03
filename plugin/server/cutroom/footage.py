@@ -59,27 +59,28 @@ def search(query: str, n: int = 6, shot_text: str | None = None, pid: str | None
         except Exception as e:  # noqa: BLE001
             log("cc search failed, falling back to ytsearch:", repr(e)[:200])
             flat = ydl.extract_info(f"ytsearch{n * 3}:{query}" + (" creative commons" if cc_only else ""), download=False).get("entries") or []
-    out = []
-    with YoutubeDL({"quiet": True, "no_warnings": True, "skip_download": True}) as ydl:
-        for h in flat:
-            if len(out) >= n:
-                break
-            vid = h.get("id")
-            if not vid or (h.get("duration") and h["duration"] > 4 * 3600):
-                continue
-            try:
+    # metadata for every candidate in parallel (one request each); keep search order
+    def meta(h):
+        vid = h.get("id")
+        if not vid or (h.get("duration") and h["duration"] > 4 * 3600):
+            return None
+        try:
+            with YoutubeDL({"quiet": True, "no_warnings": True, "skip_download": True, "socket_timeout": 20}) as ydl:
                 info = ydl.extract_info(f"https://www.youtube.com/watch?v={vid}", download=False)
-            except Exception as e:  # noqa: BLE001
-                log("skip", vid, repr(e)[:120])
-                continue
-            lic = info.get("license") or ("" if cc_only else "Standard YouTube License")
-            if cc_only and "creative commons" not in lic.lower():
-                continue
-            out.append({"id": vid, "url": info.get("webpage_url"), "title": info.get("title"), "channel": info.get("uploader"),
-                        "license": lic, "duration": info.get("duration"), "thumb": f"https://i.ytimg.com/vi/{vid}/hqdefault.jpg",
-                        "description": (info.get("description") or "")[:600],
-                        "chapters": [{"title": c.get("title"), "start": c.get("start_time"), "end": c.get("end_time")}
-                                     for c in (info.get("chapters") or [])][:30]})
+        except Exception as e:  # noqa: BLE001
+            log("skip", vid, repr(e)[:120])
+            return None
+        lic = info.get("license") or ("" if cc_only else "Standard YouTube License")
+        if cc_only and "creative commons" not in lic.lower():
+            return None
+        return {"id": vid, "url": info.get("webpage_url"), "title": info.get("title"), "channel": info.get("uploader"),
+                "license": lic, "duration": info.get("duration"), "thumb": f"https://i.ytimg.com/vi/{vid}/hqdefault.jpg",
+                "description": (info.get("description") or "")[:600],
+                "chapters": [{"title": c.get("title"), "start": c.get("start_time"), "end": c.get("end_time")}
+                             for c in (info.get("chapters") or [])][:30]}
+    from concurrent.futures import ThreadPoolExecutor
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        out = [m for m in pool.map(meta, flat) if m][:n]
     ranks = jev.rank_footage(shot_text or query, out) if out else None
     if ranks:
         by = {r["id"]: r for r in ranks}
