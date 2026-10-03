@@ -1,0 +1,17 @@
+.env
+.env.local
+node_modules
+.next
+.vercel
+worker/cache/
+worker/out/
+__pycache__/
+*.pyc
+tools/
+plugin/server/.venv/
+projects/
+*.mp4
+*.mov
+*.wav
+node_modules/
+.DS_Store

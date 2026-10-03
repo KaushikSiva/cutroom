@@ -1,0 +1,7 @@
+{
+  "name": "cutroom",
+  "version": "0.1.0",
+  "description": "A video studio for Claude Code: plans a script, builds references and an animatic, generates shots (Seedance 2.5 / Veo 3.1), pulls Creative Commons footage, renders motion graphics (Hyperframes, Manim, Motion Canvas, Blender), records an emotive voiceover (Gemini 3.8 TTS), scores music (ElevenLabs), assembles with OpenTimelineIO + ffmpeg, captions, critiques, upscales to 4K and publishes.",
+  "author": { "name": "Cutroom" },
+  "keywords": ["video", "documentary", "explainer", "motion-graphics", "opentimelineio", "ffmpeg"]
+}

@@ -1,0 +1,11 @@
+mcp[cli]>=2.3
+supabase>=2
+python-dotenv
+google-genai>=2.25
+requests
+pillow
+yt-dlp
+opentimelineio
+typesafe-sdk
+mlx-whisper
+manim

@@ -1,0 +1,11 @@
+{
+  "name": "cutroom",
+  "owner": { "name": "KaushikSiva" },
+  "plugins": [
+    {
+      "name": "cutroom",
+      "source": "./plugin",
+      "description": "A film studio your agents can hire: plan, generate, cut, caption, critique and publish videos from Claude Code."
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "cutroom": {
+      "command": "${CLAUDE_PLUGIN_ROOT}/server/run.sh",
+      "args": [],
+      "env": { "PYTHONUNBUFFERED": "1" }
+    }
+  }
+}
