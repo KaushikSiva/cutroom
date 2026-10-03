@@ -19,6 +19,13 @@ Brief Claude Code on a film; it plans, shoots, scores, cuts, captions, critiques
   <img src="https://img.shields.io/badge/license-MIT-green" alt="MIT">
 </p>
 
+<p align="center">
+  <a href="https://phgfjjohaavqhbwplcxv.supabase.co/storage/v1/object/public/media/projects/832528c6-737e-4c1e-beff-3996494c5442/final/india_a_tryst_with_destiny.mp4">
+    <img src="docs/india.gif" alt="India: A Tryst with Destiny, a 4-minute documentary directed end to end by Claude Code with Cutroom" width="720">
+  </a><br>
+  <sub><b>India: A Tryst with Destiny</b>: 4 minutes, 23 shots, directed end to end by Claude Code. <a href="https://phgfjjohaavqhbwplcxv.supabase.co/storage/v1/object/public/media/projects/832528c6-737e-4c1e-beff-3996494c5442/final/india_a_tryst_with_destiny.mp4">Watch the film</a> · <a href="https://cutroom-zeta.vercel.app/p/832528c6-737e-4c1e-beff-3996494c5442">See how it was made</a></sub>
+</p>
+
 ---
 
 Cutroom turns a four-part brief into a finished, captioned film with a credits ledger:
