@@ -9,3 +9,4 @@ opentimelineio
 typesafe-sdk
 mlx-whisper
 manim
+playwright
