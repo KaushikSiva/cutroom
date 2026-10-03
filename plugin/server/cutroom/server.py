@@ -198,7 +198,8 @@ async def search_footage(project_id: str, query: str, n: int = 6, shot_id: str |
         shot = _plan_shot(project_id, shot_id) if shot_id else {}
         res = footage.search(query, n, shot_text=(shot.get("visual") or "") + " " + (shot.get("narration") or "") or query,
                              pid=project_id)
-        db.stage(project_id, "footage", 50)
+        # scouting before the plan is saved is still planning; don't jump the studio rail to 50%
+        db.stage(project_id, "footage", 50) if project.load(project_id).get("plan") else db.stage(project_id, "plan", 8)
         for c in res[:3]:
             db.emit(project_id, "clip", f"candidate: {c['title']}", {"youtube_id": c["id"], "title": c["title"], "channel": c["channel"],
                                                                       "license": c["license"], "thumb": c["thumb"], "used": False})
