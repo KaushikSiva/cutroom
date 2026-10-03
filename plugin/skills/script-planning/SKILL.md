@@ -19,6 +19,14 @@ Budget narration at about **2.3 words per second** (a professor's measured pace)
 words; a 4-minute film roughly 550. Leave 1–2 s without narration at the open, at chapter changes and at the end,
 so music and images can breathe.
 
+### Tribute and montage films
+
+For a montage of iconic moments (a national history, a career, a company's story), the archival sound carries the
+film and the narrator only bridges. Plan roughly a third of the runtime as original sound (`keep_audio` shots: the
+speech, the famous line, the crowd), and keep narration to short connective passages between them, still in the
+professor's full sentences. Open and close on the same image (a founding document, a first photograph) so the film
+reads as one arc, and move through time in order with a slug on every real shot.
+
 ## Write the narration
 
 Follow the narration rules in the make-video skill: a university professor's voice, full connected sentences, few

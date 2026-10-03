@@ -32,3 +32,13 @@ narration.
 
 Alternate real footage with generated shots and graphics. Real footage is what makes an explainer feel true, so use it
 for anything that actually happened or actually exists.
+
+## Original sound and slugs
+
+Some moments are only themselves with their own sound: a president's speech, a commentator's call, mission control
+cheering, "That's one small step for man". For those shots set `"keep_audio": true` in the plan and leave that shot's
+`narration` empty; the clip's own audio plays and the music ducks under it. Choose in/out points on the exact words,
+with a few frames of breath either side. `"source_gain"` (default 1.0) adjusts a quiet recording.
+
+Give every real-footage shot a `"slug"`: the documentary line in the lower-left corner naming where and when, in the
+form `"Pearl Harbor · December 7, 1941"`. Use the date of the event, not of the upload.

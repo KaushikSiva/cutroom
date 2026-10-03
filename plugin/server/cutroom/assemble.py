@@ -17,6 +17,7 @@ VO_LEAD = 0.2          # voice starts this long after the cut
 XFADE = 0.5            # dissolve length
 STILL = {".png", ".jpg", ".jpeg", ".webp"}
 BG = "0x0b0d14"
+SLUG_FONT = Path(__file__).parent / "motion" / "fonts" / "fraunces-semibold.ttf"
 
 
 def rt(seconds: float) -> otio.opentime.RationalTime:
@@ -62,6 +63,8 @@ def build_timeline(pid: str, mode: str = "final") -> tuple[otio.schema.Timeline,
     v2 = otio.schema.Track(name="V2 overlays", kind=otio.schema.TrackKind.Video)
     a1 = otio.schema.Track(name="A1 voice", kind=otio.schema.TrackKind.Audio)
     a2 = otio.schema.Track(name="A2 music", kind=otio.schema.TrackKind.Audio)
+    a3 = otio.schema.Track(name="A3 source audio", kind=otio.schema.TrackKind.Audio)
+    a3_cursor = 0.0
     t = 0.0
     layout = []
     v2_cursor = a1_cursor = 0.0
@@ -84,6 +87,7 @@ def build_timeline(pid: str, mode: str = "final") -> tuple[otio.schema.Timeline,
                                 source_range=tr(src_in, dur))
         clip.metadata["cutroom"] = {"shot_id": sid, "source": kind, "still": Path(path).suffix.lower() in STILL,
                                     "graphic": kind == "graphic", "label": shot.get("label") or "",
+                                    "slug": shot.get("slug") or "",
                                     "transition": "dissolve" if shot.get("transition") == "dissolve" and t > 0 else "cut"}
         v1.append(clip)
         # overlay graphic for this shot (alpha), slightly after the cut
@@ -96,6 +100,15 @@ def build_timeline(pid: str, mode: str = "final") -> tuple[otio.schema.Timeline,
                                   source_range=tr(0, odur))
             v2.append(oc)
             v2_cursor = ostart + odur
+        # original sound of a real clip (a speech, a famous line): plays under no narration, music ducks under it
+        if shot.get("keep_audio") and kind not in ("card", "graphic") and Path(path).suffix.lower() not in STILL:
+            if t > a3_cursor:
+                a3.append(otio.schema.Gap(source_range=tr(0, t - a3_cursor)))
+            src_clip = otio.schema.Clip(name=f"{sid}-src", media_reference=otio.schema.ExternalReference(target_url=str(path)),
+                                        source_range=tr(src_in, dur))
+            src_clip.metadata["cutroom"] = {"gain": float(shot.get("source_gain", 1.0))}
+            a3.append(src_clip)
+            a3_cursor = t + dur
         if voice:
             vstart = t + VO_LEAD
             if vstart > a1_cursor:
@@ -110,7 +123,7 @@ def build_timeline(pid: str, mode: str = "final") -> tuple[otio.schema.Timeline,
     if music and Path(music["path"]).exists():
         a2.append(otio.schema.Clip(name="score", media_reference=otio.schema.ExternalReference(target_url=music["path"]),
                                    source_range=tr(0, t)))
-    tl.tracks.extend([v1, v2, a1, a2])
+    tl.tracks.extend([v1, v2, a1, a2, a3])
     out = d / "cuts" / f"{mode}.otio"
     otio.adapters.write_to_file(tl, str(out))
     return tl, out, layout
@@ -140,6 +153,11 @@ def render_otio(otio_path: Path, out_mp4: Path, w: int, h: int, mode: str = "fin
             label = esc_drawtext(f"{meta.get('shot_id', '')}  {int(start // 60):02d}:{start % 60:05.2f}  {meta.get('source', '')}")
             burn = (f",drawtext=fontfile={FONT}:text='{label}':x=24:y=h-th-24:fontsize={int(h * 0.028)}:"
                     f"fontcolor=white:box=1:boxcolor=black@0.55:boxborderw=10")
+        if mode == "final" and meta.get("slug"):
+            slug = esc_drawtext(meta["slug"].upper())
+            fade = f"if(lt(t,0.6),t/0.6,if(gt(t,{dur - 0.6:.3f}),max(0,({dur:.3f}-t)/0.6),1))"
+            burn += (f",drawtext=fontfile={SLUG_FONT}:text='{slug}':x=w*0.045:y=h*0.93-th:fontsize={int(h * 0.019)}:"
+                     f"fontcolor=white:alpha='0.82*{fade}':shadowcolor=black@0.6:shadowx=1:shadowy=1")
         enc = ["-t", f"{render_dur:.3f}", "-an", "-c:v", "libx264", "-preset", "veryfast", "-crf", "18", "-r", str(FPS), seg]
         if meta.get("still"):
             tmp = work / f"{i:03d}_kb.mp4"
@@ -210,6 +228,17 @@ def render_otio(otio_path: Path, out_mp4: Path, w: int, h: int, mode: str = "fin
         args += ["-i", src]
         ms = int(start * 1000)
         fc.append(f"[{n}:a]aresample=48000,aformat=channel_layouts=stereo,adelay={ms}|{ms}[vo{n}]")
+        vo_labels.append(f"[vo{n}]")
+        n += 1
+    for it in tracks.get("A3 source audio", []):
+        if not isinstance(it, otio.schema.Clip) or not has_audio(it.media_reference.target_url):
+            continue
+        sr, start = it.source_range, it.range_in_parent().start_time.to_seconds()
+        gain = it.metadata.get("cutroom", {}).get("gain", 1.0)
+        args += ["-ss", f"{sr.start_time.to_seconds():.3f}", "-t", f"{sr.duration.to_seconds():.3f}", "-i", it.media_reference.target_url]
+        ms = int(start * 1000)
+        fc.append(f"[{n}:a]aresample=48000,aformat=channel_layouts=stereo,volume={gain:.2f},"
+                  f"afade=t=in:d=0.15,afade=t=out:st={max(0, sr.duration.to_seconds() - 0.3):.3f}:d=0.3,adelay={ms}|{ms}[vo{n}]")
         vo_labels.append(f"[vo{n}]")
         n += 1
     if vo_labels:
