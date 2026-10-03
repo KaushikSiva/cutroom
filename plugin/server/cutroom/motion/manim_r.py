@@ -89,17 +89,20 @@ class LineChartScene(Scene):
         ys = [float(v) for s in series for v in s["y"]] or [0, 1]
         ymin, ymax = min(0, min(ys)), max(ys) * 1.1
         ax = Axes(x_range=[min(xs), max(xs), max(1, (max(xs) - min(xs)) / 5)], y_range=[ymin, ymax, (ymax - ymin) / 4],
-                  x_length=fw * 0.78, y_length=fh * 0.55,
-                  axis_config={"color": MUTED, "stroke_width": 2, "include_tip": False, "font_size": 22},
-                  x_axis_config={"numbers_to_include": xs[:: max(1, len(xs) // 6)], "decimal_number_config": {"num_decimal_places": 0, "group_with_commas": False}},
-                  y_axis_config={"numbers_to_include": []}).next_to(title, DOWN, buff=0.6)
-        self.play(FadeIn(title, shift=DOWN * 0.2), Create(ax), run_time=1.0)
+                  x_length=fw * 0.74, y_length=fh * 0.52,
+                  axis_config={"color": MUTED, "stroke_width": 2, "include_tip": False, "include_numbers": False}).next_to(title, DOWN, buff=0.7)
+        # tick labels as Text (Axes numbers need LaTeX, which is not installed)
+        ticks = VGroup(*[T(f"{x:g}", size=22, color=MUTED).next_to(ax.c2p(x, ymin), DOWN, buff=0.2) for x in xs[:: max(1, len(xs) // 6)]])
+        unit, prefix = P.get("unit", ""), P.get("prefix", "")
+        yl = VGroup(*[T(f"{prefix}{v:g}{unit}", size=22, color=MUTED).next_to(ax.c2p(min(xs), v), LEFT, buff=0.2)
+                      for v in (ymin, round((ymin + ymax) / 2, 2), round(ymax, 2))])
+        self.play(FadeIn(title, shift=DOWN * 0.2), Create(ax), FadeIn(ticks), FadeIn(yl), run_time=1.0)
         colors = [ACCENT, ACCENT2, "#c77dff", "#ff7b72"]
         for i, s in enumerate(series):
             pts = [ax.c2p(x, float(y)) for x, y in zip(xs, s["y"])]
             line = VMobject(color=colors[i % 4], stroke_width=6).set_points_smoothly(pts)
             dot = Dot(pts[-1], color=colors[i % 4], radius=0.09)
-            lab = T(s.get("name", ""), size=26, color=colors[i % 4]).next_to(dot, UR, buff=0.12)
+            lab = T(s.get("name", ""), size=26, color=colors[i % 4]).next_to(dot, UP if i % 2 == 0 else DOWN, buff=0.18).align_to(dot, RIGHT)
             self.play(Create(line), run_time=1.8, rate_func=smooth)
             self.play(FadeIn(dot, scale=0.5), FadeIn(lab), run_time=0.4)
         self.wait(float(P.get("hold", 1.5)))

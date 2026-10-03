@@ -135,7 +135,7 @@ def data_callout(p, w, h):
         f'<div class="row"><div class="bl">{e(b.get("label"))}</div><div class="track"><div class="fill" data-v="{float(b.get("value", 0)) / mx:.4f}"></div></div>'
         f'<div class="bv mono" data-to="{float(b.get("value", 0))}">0</div></div>' for b in bars)
     css = BACKDROP_CSS + f"""
-.wrap{{position:absolute;inset:0;display:flex;flex-direction:{'column' if portrait else 'row'};align-items:{'flex-start' if portrait else 'center'};justify-content:center;gap:calc(var(--u)*{70 if portrait else 120}px);padding:0 calc(var(--u)*{90 if portrait else 150}px)}}
+.wrap{{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);display:flex;flex-direction:{'column' if portrait else 'row'};align-items:{'flex-start' if portrait else 'center'};justify-content:center;gap:calc(var(--u)*{70 if portrait else 120}px);padding:0 calc(var(--u)*{90 if portrait else 150}px)}}
 .left{{flex:{'0' if portrait else '1.1'}}}
 .eyebrow{{font-size:calc(var(--u)*24px);letter-spacing:.3em;text-transform:uppercase;color:var(--accent2);font-weight:600}}
 .big{{font-size:calc(var(--u)*{190 if portrait else 220}px);font-weight:800;line-height:1;letter-spacing:-.04em;margin:calc(var(--u)*20px) 0;background:linear-gradient(180deg,#fff, #d9cfbd);-webkit-background-clip:text;color:transparent}}
@@ -181,7 +181,7 @@ def kinetic_quote(p, w, h):
 .wrap{{position:absolute;left:calc(var(--u)*{90 if portrait else 170}px);right:calc(var(--u)*{90 if portrait else 170}px);top:50%;transform:translateY(-50%)}}
 .mark{{font-size:calc(var(--u)*220px);line-height:.6;color:var(--accent);opacity:.9;height:calc(var(--u)*110px)}}
 .q{{font-size:calc(var(--u)*{70 if portrait else 78}px);line-height:1.22;font-weight:300;letter-spacing:-.01em}}
-.kw{{display:inline-block;margin-right:.24em;opacity:.12;transform:translateY(.25em);filter:blur(4px)}}
+.kw{{display:inline-block;margin-right:.24em}}
 .em{{font-weight:800;font-style:italic;color:var(--accent)}}
 .who{{margin-top:calc(var(--u)*44px);font-size:calc(var(--u)*28px);letter-spacing:.24em;text-transform:uppercase;color:var(--muted)}}
 """
@@ -189,9 +189,10 @@ def kinetic_quote(p, w, h):
 <div class="q serif">{''.join(words)}</div><div class="who" id="who">{('— ' + e(p.get('author'))) if p.get('author') else ''}</div></div>"""
     js = BACKDROP_JS + f"""
 const per = Math.min(.22, (D - 2.0) / {n});
+gsap.set('.kw', {{opacity:.12, y: 0.25*{70 if portrait else 78}*U, filter:'blur(4px)'}});
 tl.from('#mark', {{opacity:0, y:-20*U, duration:.6, ease:'power3.out'}}, .05);
 tl.to('.kw', {{opacity:1, y:0, filter:'blur(0px)', duration:.5, ease:'power3.out', stagger: per}}, .3);
-tl.from('.em', {{scale:1.25, duration:.6, ease:'back.out(3)', stagger: per}}, .3 + per*0.5);
+tl.fromTo('.em', {{scale:1.25}}, {{scale:1, duration:.6, ease:'back.out(3)', stagger: per, immediateRender:false}}, .3 + per*0.5);
 tl.from('#who', {{opacity:0, x:-20*U, duration:.6, ease:'power3.out'}}, .4 + per*{n});
 tl.to('#wrap', {{opacity:0, y:-10*U, duration:.5, ease:'power2.in'}}, D-.55);
 """

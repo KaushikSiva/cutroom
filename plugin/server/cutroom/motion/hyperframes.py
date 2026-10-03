@@ -33,14 +33,15 @@ def _project(html, w, h):
     return d
 
 
-def _render_cli(d, out, fps):
+def _render_cli(d, out, fps, duration=None):
     fmt = "mov" if out.lower().endswith(".mov") else "mp4"
     tmp_out = os.path.join(d, "render." + fmt)
     env = dict(os.environ, HYPERFRAMES_SKIP_SKILLS="1", HYPERFRAMES_NO_TELEMETRY="1", DO_NOT_TRACK="1")
     cmd = _cli() + ["render", "-o", tmp_out, "--fps", str(fps), "--format", fmt, "--quiet"]
     if fmt == "mp4":
         cmd += ["--quality", "high"]
-    run(cmd, timeout=900, cwd=d, env=env)
+    # a composition that never signals ready would hang the CLI; fall back to the Playwright renderer instead
+    run(cmd, timeout=90 + 12 * float(duration or 8), cwd=d, env=env)
     if not os.path.exists(tmp_out):
         raise RenderError("hyperframes produced no output")
     os.makedirs(os.path.dirname(os.path.abspath(out)), exist_ok=True)
@@ -96,7 +97,7 @@ def render(source=None, template=None, params=None, out="graphic.mp4", w=1920, h
         return result(out)
     d = _project(html, w, h)
     try:
-        _render_cli(d, out, fps)
+        _render_cli(d, out, fps, dur)
     except (RenderError, subprocess.TimeoutExpired, OSError) as err:
         if not engine_fallback:
             raise
