@@ -14,6 +14,10 @@ SAY_VOICE = "Daniel"
 def tts(text: str, out: Path, direction: str = "", voice: str | None = None) -> dict:
     """-> {path, duration, engine}. Output is 24 kHz mono wav."""
     out = Path(out)
+    if (config.get("CUTROOM_TTS_ENGINE") or "").lower() == "elevenlabs":
+        r = _elevenlabs(text, out)
+        if r:
+            return r
     key = config.get("GEMINI_API_KEY")
     if key:
         try:
@@ -36,6 +40,35 @@ def tts(text: str, out: Path, direction: str = "", voice: str | None = None) -> 
         except Exception as e:  # noqa: BLE001
             log("gemini tts failed, falling back to say:", repr(e)[:400])
     return say(text, out)
+
+
+def _elevenlabs(text: str, out: Path) -> dict | None:
+    """ElevenLabs narrator (CUTROOM_ELEVEN_VOICE, default Eric - Smooth, Trustworthy). Gemini's inline pause tags
+    become ellipses; other vocal tags are dropped, since this model reads text literally."""
+    import requests
+    key = config.get("ELEVENLABS_API_KEY")
+    if not key:
+        return None
+    clean = re.sub(r"<long pause>", "... ", text)
+    clean = re.sub(r"<short pause>", ", ", clean)
+    clean = re.sub(r"<[^>]+>", "", clean).strip()
+    voice_id = config.get("CUTROOM_ELEVEN_VOICE") or "cjVigY5qzO86Huf0OWal"
+    try:
+        r = requests.post(f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}?output_format=mp3_44100_128",
+                          headers={"xi-api-key": key, "Content-Type": "application/json"}, timeout=120,
+                          json={"text": clean, "model_id": config.get("CUTROOM_ELEVEN_MODEL") or "eleven_multilingual_v2",
+                                "voice_settings": {"stability": 0.5, "similarity_boost": 0.8, "style": 0.25, "use_speaker_boost": True}})
+        if r.status_code >= 400:
+            log("elevenlabs tts", r.status_code, r.text[:300])
+            return None
+        mp3 = out.with_suffix(".el.mp3")
+        mp3.write_bytes(r.content)
+        ffmpeg("-i", mp3, "-ar", "24000", "-ac", "1", out)
+        mp3.unlink(missing_ok=True)
+        return {"path": str(out), "duration": duration(out), "engine": f"elevenlabs:{voice_id}"}
+    except Exception as e:  # noqa: BLE001
+        log("elevenlabs tts failed:", repr(e)[:300])
+        return None
 
 
 def say(text: str, out: Path, voice: str = SAY_VOICE) -> dict:
