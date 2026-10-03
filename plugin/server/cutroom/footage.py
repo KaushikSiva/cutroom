@@ -1,4 +1,6 @@
-"""Real Creative Commons footage from YouTube via yt-dlp: search, verify license, download only the needed seconds."""
+"""Real footage from YouTube via yt-dlp: search, record the license, download only the needed seconds.
+
+CUTROOM_FOOTAGE_LICENSE=cc (default) keeps Creative Commons only; =any searches all of YouTube."""
 import urllib.parse
 from pathlib import Path
 
@@ -13,13 +15,14 @@ CACHE = config.REPO / "projects" / "_footage_cache"
 def search(query: str, n: int = 6, shot_text: str | None = None, pid: str | None = None) -> list[dict]:
     """-> [{id, url, title, channel, license, duration, thumb, description, rank?}] (Creative Commons only)"""
     from yt_dlp import YoutubeDL
-    url = "https://www.youtube.com/results?" + urllib.parse.urlencode({"search_query": query}) + "&sp=" + CC_FILTER
+    cc_only = (config.get("CUTROOM_FOOTAGE_LICENSE") or "cc").lower() != "any"
+    url = "https://www.youtube.com/results?" + urllib.parse.urlencode({"search_query": query}) + ("&sp=" + CC_FILTER if cc_only else "")
     with YoutubeDL({"quiet": True, "no_warnings": True, "extract_flat": True, "playlistend": n * 3}) as ydl:
         try:
             flat = ydl.extract_info(url, download=False).get("entries") or []
         except Exception as e:  # noqa: BLE001
             log("cc search failed, falling back to ytsearch:", repr(e)[:200])
-            flat = ydl.extract_info(f"ytsearch{n * 3}:{query} creative commons", download=False).get("entries") or []
+            flat = ydl.extract_info(f"ytsearch{n * 3}:{query}" + (" creative commons" if cc_only else ""), download=False).get("entries") or []
     out = []
     with YoutubeDL({"quiet": True, "no_warnings": True, "skip_download": True}) as ydl:
         for h in flat:
@@ -33,8 +36,8 @@ def search(query: str, n: int = 6, shot_text: str | None = None, pid: str | None
             except Exception as e:  # noqa: BLE001
                 log("skip", vid, repr(e)[:120])
                 continue
-            lic = info.get("license") or ""
-            if "creative commons" not in lic.lower():
+            lic = info.get("license") or ("" if cc_only else "Standard YouTube License")
+            if cc_only and "creative commons" not in lic.lower():
                 continue
             out.append({"id": vid, "url": info.get("webpage_url"), "title": info.get("title"), "channel": info.get("uploader"),
                         "license": lic, "duration": info.get("duration"), "thumb": f"https://i.ytimg.com/vi/{vid}/hqdefault.jpg",

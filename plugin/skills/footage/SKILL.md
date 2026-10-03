@@ -3,10 +3,10 @@ name: footage
 description: Find and cut real Creative Commons clips from YouTube into a Cutroom film with yt-dlp search — querying, judging candidates, choosing in/out points and keeping the license ledger. Use for every `footage` shot.
 ---
 
-# Real footage from YouTube (Creative Commons only)
+# Real footage from YouTube
 
-`search_footage(project_id, query, n)` searches YouTube with yt-dlp and returns only videos whose license is Creative
-Commons, with title, channel, duration, license and a relevance score from Jev. `add_clip(project_id, youtube_id,
+`search_footage(project_id, query, n)` searches YouTube with yt-dlp (Creative Commons only, unless the studio is
+configured with `CUTROOM_FOOTAGE_LICENSE=any`) and returns candidates with title, channel, duration, license and a relevance score from Jev. `add_clip(project_id, youtube_id,
 start, end, shot_id)` downloads just that section and records it in the license ledger, which `publish` turns into
 the film's credits.
 
@@ -18,8 +18,9 @@ Search for what a camera would have filmed, not for the idea: "1960s mainframe c
 - footage without on-screen talking heads, logos, watermarks or burned-in subtitles,
 - the highest resolution available.
 
-Never use a clip whose license isn't Creative Commons, even if it is perfect. The tool already filters, so if a search
-returns nothing, rephrase or change the shot to `generated` or `graphic`.
+Whatever the license, every clip you use is recorded with its source and license and credited when you publish.
+Prefer the original broadcaster or archive's upload over re-uploads. If a search returns nothing usable, rephrase or
+change the shot to `generated` or `graphic`.
 
 ## Choosing the moment
 
