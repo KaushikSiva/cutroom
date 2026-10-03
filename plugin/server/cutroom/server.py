@@ -473,9 +473,15 @@ async def publish(project_id: str, cut_path: str, title: str, logline: str = "")
         cut = Path(cut_path)
         web = cut
         if cut.stat().st_size > 45 * 1024 * 1024:  # keep under the storage upload limit
+            # two-pass at a bitrate computed from the duration, so the file always lands under ~44 MB
             web = cut.with_name(cut.stem + "_web.mp4")
-            ffmpeg("-i", cut, "-c:v", "libx264", "-preset", "medium", "-crf", "24", "-maxrate", "5M", "-bufsize", "10M",
-                   "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "160k", "-movflags", "+faststart", web)
+            vk = max(600, min(6000, int(44 * 8 * 1024 / max(1.0, duration(cut))) - 140))
+            log_prefix = str(cut.with_name(cut.stem + "_2pass"))
+            ffmpeg("-i", cut, "-c:v", "libx264", "-preset", "slow", "-b:v", f"{vk}k", "-pass", "1", "-passlogfile", log_prefix,
+                   "-an", "-f", "mp4", "/dev/null")
+            ffmpeg("-i", cut, "-c:v", "libx264", "-preset", "slow", "-b:v", f"{vk}k", "-maxrate", f"{vk * 2}k",
+                   "-bufsize", f"{vk * 4}k", "-pass", "2", "-passlogfile", log_prefix, "-pix_fmt", "yuv420p",
+                   "-c:a", "aac", "-b:a", "128k", "-movflags", "+faststart", web)
         url = _up(project_id, web, "final")
         poster = cut.with_name(cut.stem + "_poster.jpg")
         ffmpeg("-ss", f"{min(3.0, duration(cut) / 3):.2f}", "-i", cut, "-frames:v", "1", "-q:v", "2", poster)
