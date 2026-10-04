@@ -40,6 +40,32 @@ footage with its original sound, never narrate like a chatbot, and critique your
 Every step streams live to the studio page, so you can watch a film being made: the plan, the reference images,
 the footage it chose, each critique round and the final cut.
 
+## Films made with Cutroom
+
+Every frame below was planned, sourced, cut, captioned and critiqued by Claude Code. Nobody edited these by hand.
+
+**India: A Tryst with Destiny** · 4 min · 23 shots · original audio of Nehru's midnight speech and the ISRO control room · [watch](https://phgfjjohaavqhbwplcxv.supabase.co/storage/v1/object/public/media/projects/832528c6-737e-4c1e-beff-3996494c5442/final/india_a_tryst_with_destiny.mp4) · [how it was made](https://cutroom-zeta.vercel.app/p/832528c6-737e-4c1e-beff-3996494c5442)
+
+<img src="docs/img/india-stills.jpg" alt="Stills from India: A Tryst with Destiny" width="100%">
+
+**Google: Organizing the World** · 90 s · 12 archival clips · ElevenLabs narrator and orchestral score · [watch](https://phgfjjohaavqhbwplcxv.supabase.co/storage/v1/object/public/media/projects/f704869c-474c-451f-a0c5-848ecc0c2ef3/final/google_organizing_the_world.mp4) · [how it was made](https://cutroom-zeta.vercel.app/p/f704869c-474c-451f-a0c5-848ecc0c2ef3)
+
+<img src="docs/img/google-stills.jpg" alt="Stills from Google: Organizing the World" width="100%">
+
+## The studio
+
+Brief a film on the web, or from Claude Code, or from any agent over MCP.
+
+<img src="docs/img/home.jpg" alt="Cutroom home page: brief a film" width="100%">
+
+Then watch it get made: the director's live log, the stage rail, every cut, and the final film.
+
+<img src="docs/img/studio-india.jpg" alt="Live studio page for the India film" width="100%">
+
+The storyboard fills in as shots land, next to every critique round the director ran on its own cut.
+
+<img src="docs/img/studio-storyboard.jpg" alt="Storyboard and critic rounds" width="100%">
+
 ## What's in the box
 
 | Stage | How |
